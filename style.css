@@ -1,114 +1,87 @@
 :root{
-  /* Paleta de Paula */
   --fondo: #C8D9E6;
   --casilla: #cdc9e8;
   --aprobado: #b882af;
-  --cursando: #d4ccec;        /* tono claro para cursando */
-  --titulo: #5A496E;          /* corregido desde #sa496e */
+  --cursando: #e6e0f2;
+  --titulo: #5A496E;
   --letra-ramos: #3B165C;
   --letra-semestre: #395176;
-
-  --borde: #bfcbe0;
-  --blanco: #ffffff;
-  --sombra: 0 6px 20px rgba(0,0,0,.08);
+  --borde: #b7c6d4;
+  --borde-suave: #d7deea;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
+*{ box-sizing: border-box; }
 body{
   margin:0;
-  background:var(--fondo);
-  color:var(--letra-ramos);
-  font:16px/1.4 "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--fondo);
+  color: var(--letra-ramos);
+  font-family: "Poppins", "Segoe UI", sans-serif;
 }
 
-/* Top bar */
+/* ----- Encabezado ----- */
 .topbar{
-  position:sticky; top:0; z-index:10;
-  background:color-mix(in srgb, var(--fondo) 85%, var(--blanco));
-  border-bottom:1px solid var(--borde);
-  padding:12px 16px;
-  display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+  position: sticky; top:0; z-index:10;
+  display: flex; flex-wrap:wrap; align-items:center; gap:10px;
+  background: rgba(255,255,255,.5);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--borde);
+  padding: 10px 16px;
 }
-.titulo{
-  margin:0; color:var(--titulo); font-weight:800; letter-spacing:.2px;
+.title{
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--titulo);
 }
-.acciones{margin-left:auto; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
-.acciones input[type="search"], .acciones select{
-  padding:8px 10px; border:1px solid var(--borde); border-radius:10px; min-width:260px;
-  background:var(--blanco); color:var(--letra-ramos);
-}
-.acciones button, .btn-file{
-  padding:8px 12px; border:1px solid var(--borde); border-radius:10px; background:var(--blanco); cursor:pointer;
-}
-.btn-file{position:relative}
-.btn-file input{position:absolute; inset:0; opacity:0; cursor:pointer}
-
-/* Resumen */
-.resumen{max-width:1200px; margin:18px auto 0; padding:0 12px; display:grid; gap:12px; grid-template-columns:repeat(3,1fr)}
-.card{
-  background:var(--blanco); border:1px solid var(--borde); border-radius:16px; padding:14px; box-shadow:var(--sombra);
-}
-.card h2{margin:.2rem 0 .4rem 0; font-size:14px; color:var(--letra-semestre); font-weight:700}
-.barra{height:10px; background:#e7eaf3; border-radius:999px; overflow:hidden}
-#progressBar{height:100%; width:0%; background:var(--aprobado); transition:width .3s ease;}
-#progressTxt{margin:.5rem 0 0; font-size:13px; color:#435a7e}
-
-/* Contenedor de columnas por semestre */
-.contenedor{max-width:1200px; margin:16px auto 24px; padding:0 12px; display:grid; gap:16px; grid-template-columns:repeat(5,1fr)}
-@media (max-width:1000px){ .contenedor{grid-template-columns:repeat(3,1fr)} }
-@media (max-width:700px){ .contenedor{grid-template-columns:repeat(2,1fr)} }
-
-.columna{
-  background:color-mix(in srgb, var(--fondo) 70%, var(--blanco));
+.controls{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+.controls input, .controls select, .btn{
   border:1px solid var(--borde);
-  border-radius:18px; overflow:hidden; box-shadow:var(--sombra)
+  background:white;
+  color:var(--letra-ramos);
+  padding:8px 10px;
+  border-radius:10px;
 }
-.col-head{
-  background:#bfcbe0; padding:10px 12px; display:flex; justify-content:space-between; align-items:center
-}
-.col-head h3{margin:0; color:var(--letra-semestre); font-size:15px; font-weight:800}
-.col-head small{color:#4a638d; font-weight:600}
+.btn{ cursor:pointer; }
+.btn.primary{ background:var(--aprobado); color:white; border-color:transparent; }
 
-.lista{list-style:none; margin:0; padding:0}
-.item{padding:12px; border-top:1px solid var(--borde); background:transparent}
+/* ----- Leyenda y progreso ----- */
+.legend{ padding:10px 16px; color:var(--letra-semestre); display:flex; gap:6px; flex-wrap:wrap; }
+.dot{ width:16px; height:16px; border-radius:50%; border:1px solid var(--borde); }
+.dot.cursando{ background:var(--cursando); }
+.dot.aprobado{ background:var(--aprobado); }
+.dot.creditos{ border-radius:6px; background:white; padding:0 5px; font-weight:600; }
 
+.progress{ padding:0 16px 10px; }
+.bar{ width:100%; height:10px; background:white; border-radius:999px; border:1px solid var(--borde); overflow:hidden; }
+#progressBar{ width:0%; height:100%; background:var(--aprobado); transition:width .3s ease; }
+.progress-text{ color:var(--letra-semestre); margin-top:4px; }
+
+/* ----- Malla ----- */
+.grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; padding:16px; }
+.semester{ background:rgba(255,255,255,.6); border:1px solid var(--borde); border-radius:16px; overflow:hidden; }
+.semester-head{ background:#bfcbe0; color:var(--letra-semestre); font-weight:700; padding:10px 12px; border-bottom:1px solid var(--borde); }
+.semester-body{ padding:12px; display:grid; gap:10px; }
+
+/* ----- Casillas ----- */
 .course{
   background:var(--casilla);
-  border:1px solid var(--borde);
-  color:var(--letra-ramos);
-  border-radius:14px;
+  border:1px solid var(--borde-suave);
+  border-radius:12px;
   padding:10px 12px;
-  display:grid; gap:6px;
-  transition:transform .15s ease, background .2s ease, color .2s ease, border-color .2s ease;
+  transition:all .2s ease;
 }
-.course:hover{transform:scale(1.015)}
+.course:hover{ transform:scale(1.02); }
+.course.aprobado{ background:var(--aprobado); color:white; }
+.course.cursando{ background:var(--cursando); }
 
-.course .fila1{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
-.course .nombre{font-weight:700}
-.course .codigo{font-size:12px; opacity:.8}
-.tag{font-size:11px; padding:3px 8px; border-radius:999px; border:1px solid var(--borde); background:rgba(255,255,255,.5)}
-.estado-select{margin-left:auto; padding:4px 6px; border:1px solid var(--borde); border-radius:8px; background:var(--blanco)}
-
-.course .fila2{display:flex; gap:10px; flex-wrap:wrap; font-size:12px; color:#3e2b59}
-.kv{background:rgba(255,255,255,.65); padding:3px 8px; border-radius:8px; border:1px dashed var(--borde)}
-.kv strong{font-weight:700}
-
-/* Estados */
-.course.cursando{ background:var(--cursando) }
-.course.aprobado{
-  background:var(--aprobado);
-  color:#fff; border-color:color-mix(in srgb, var(--aprobado) 70%, #000);
-  box-shadow:0 4px 0 rgba(0,0,0,.05) inset;
+.course .row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.course .name{ font-weight:600; flex:1; }
+.badge{
+  font-size:0.75rem;
+  padding:2px 6px;
+  background:white;
+  border:1px solid var(--borde);
+  border-radius:999px;
+  color:var(--letra-semestre);
+  cursor:pointer;
 }
-.badge-prer{ background:#e9e6ff; color:#4a3aa0; border-color:#c7c1ff }
-
-/* Leyenda chips */
-.chip{display:inline-block; font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--borde); background:#fff}
-.chip-aprobado{background:var(--aprobado); color:#fff; border-color:transparent}
-.chip-cursando{background:var(--cursando)}
-.chip-pendiente{background:var(--casilla)}
-.chip-prer{background:#e9e6ff; color:#4a3aa0; border-color:#c7c1ff}
-
-/* Footer */
-.pie{max-width:1200px; margin:0 auto 30px; padding:0 12px; color:#4e4a6a; font-size:12px}
+.badge.credits{ background:#fff; color:var(--letra-semestre); }
