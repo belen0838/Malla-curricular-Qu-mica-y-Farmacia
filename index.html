@@ -3,57 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Malla Curricular Interactiva – QyF</title>
+  <title>Malla Curricular – QyF</title>
   <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Malla curricular interactiva por semestres con prerrequisitos y progreso." />
 </head>
 <body>
   <header class="topbar">
-    <h1 class="titulo">Malla Curricular Interactiva</h1>
-    <div class="acciones">
-      <input id="buscar" type="search" placeholder="Buscar ramo, código o docente…" />
-      <select id="estadoFiltro">
-        <option value="">Todos</option>
+    <h1 class="title">Malla Curricular – QyF</h1>
+    <div class="controls">
+      <input id="search" type="search" placeholder="Buscar ramo o nombre…" />
+      <select id="estadoFilter">
+        <option value="">Todos los estados</option>
         <option value="pendiente">Pendiente</option>
         <option value="cursando">Cursando</option>
         <option value="aprobado">Aprobado</option>
       </select>
-      <button id="resetBtn">Reiniciar filtros</button>
-      <button id="exportBtn">Exportar progreso</button>
-      <label class="btn-file">Importar
-        <input id="importInput" type="file" accept="application/json" />
+      <button id="resetBtn" class="btn">Reiniciar</button>
+      <button id="exportBtn" class="btn primary">Exportar progreso</button>
+      <label class="btn">
+        Importar
+        <input id="importInput" type="file" accept="application/json" hidden />
       </label>
     </div>
   </header>
 
-  <section class="resumen">
-    <div class="card">
-      <h2>Progreso total</h2>
-      <div class="barra">
-        <div id="progressBar"></div>
-      </div>
-      <p id="progressTxt">0% · 0 / 0 créditos aprobados</p>
-    </div>
-    <div class="card">
-      <h2>Estado</h2>
-      <p id="statusCounts">Aprobado: 0 · Cursando: 0 · Pendiente: 0</p>
-    </div>
-    <div class="card">
-      <h2>Leyenda</h2>
-      <div class="leyenda">
-        <span class="chip chip-aprobado">Aprobado</span>
-        <span class="chip chip-cursando">Cursando</span>
-        <span class="chip chip-pendiente">Pendiente</span>
-        <span class="chip chip-prer">Requiere prerrequisito</span>
-      </div>
-    </div>
+  <section class="legend">
+    <span class="dot cursando"></span><span>Cursando</span>
+    <span class="dot aprobado"></span><span>Aprobado</span>
+    <span class="dot creditos">Cr</span><span>Créditos</span>
   </section>
 
-  <main id="contenedor" class="contenedor">
-    <!-- Las columnas por semestre se inyectan desde script.js -->
-  </main>
+  <section class="progress">
+    <div class="bar">
+      <div id="progressBar"></div>
+    </div>
+    <div class="progress-text"><span id="progressPct">0%</span> · <span id="progressTxt">0/0 créditos aprobados</span></div>
+  </section>
 
-  <footer class="pie">
-    <p>Hecho para QyF. Tu progreso se guarda localmente en este navegador.</p>
+  <main id="grid" class="grid"></main>
+
+  <footer class="foot">
+    <small>Guarda tu progreso automáticamente en este navegador. Puedes editar los créditos haciendo clic en "Cr —".</small>
   </footer>
 
   <script src="script.js"></script>
