@@ -1,1 +1,69 @@
+:root {
+  /* Paleta base */
+  --color-fondo: #C8D9E6;
+  --color-casilla: #cdc9e8;
+  --color-aprobado: #b882af;
+  --color-cursando: #d4ccec; /* tono más claro para cursando */
+  --color-titulo: #sa496e; /* revisa este, puede ser un error tipográfico, probablemente quisiste decir #5A496E */
+  --color-letra-ramos: #3B165C;
+  --color-letra-semestre: #395176;
+}
 
+/* Fondo general */
+body {
+  background-color: var(--color-fondo);
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  color: var(--color-letra-ramos);
+}
+
+/* Título principal */
+header h1 {
+  color: var(--color-titulo);
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+/* Casilla de semestre */
+section > div > h3 {
+  color: var(--color-letra-semestre);
+  font-weight: 600;
+}
+
+/* Casillas de ramos */
+.course-card {
+  background-color: var(--color-casilla);
+  border-radius: 12px;
+  color: var(--color-letra-ramos);
+  transition: all 0.3s ease;
+}
+
+/* Cuando el ramo se marca como cursando */
+.course-card.cursando {
+  background-color: var(--color-cursando);
+  color: var(--color-letra-ramos);
+  border: 1px solid #b9aee1;
+}
+
+/* Cuando el ramo se marca como aprobado */
+.course-card.aprobado {
+  background-color: var(--color-aprobado);
+  color: white;
+  font-weight: 600;
+}
+
+/* Efecto hover */
+.course-card:hover {
+  transform: scale(1.02);
+}
+
+/* Barra de progreso */
+#progressBar {
+  background-color: var(--color-aprobado);
+}
+
+/* Casilla de semestre (fondo título de bloque) */
+.semester-header {
+  background-color: #bfcbe0;
+  color: var(--color-letra-semestre);
+  font-weight: 600;
+}
