@@ -1,172 +1,120 @@
-/***************
- * CONFIG DATOS
- * Reemplaza el arreglo COURSES por tu lista completa
- * (usa los códigos y prerrequisitos del PDF).
- * term => "Sem 1", "Sem 2", ... "Sem 10"
- ***************/
 const COURSES = [
-  // ===== EJEMPLOS (borra y pega los tuyos) =====
-  { code:"QYF-111", name:"Química General I", credits:6, term:"Sem 1", area:"Fundamentos", prereq:[], coreq:[] },
-  { code:"QYF-112", name:"Biología Celular y Molecular", credits:6, term:"Sem 1", area:"Fundamentos", prereq:[], coreq:[] },
-  { code:"QYF-121", name:"Química General II", credits:6, term:"Sem 2", area:"Fundamentos", prereq:["QYF-111"], coreq:[] },
-  { code:"QYF-211", name:"Química Analítica Cualitativa y Cuantitativa", credits:6, term:"Sem 3", area:"Análisis", prereq:["QYF-121"], coreq:[] },
-  { code:"QYF-212", name:"Química Orgánica Farmacéutica I", credits:6, term:"Sem 3", area:"Orgánica", prereq:["QYF-121"], coreq:[] },
-  { code:"QYF-221", name:"Análisis Instrumental para Cs. Farmacéuticas", credits:6, term:"Sem 4", area:"Análisis", prereq:["QYF-215","QYF-211"], coreq:[] },
-  // =============================================
+  { name: "Química General I", credits: null, term: "Sem 1", prereq: [] },
+  { name: "Biología Celular y Molecular", credits: null, term: "Sem 1", prereq: [] },
+  { name: "Morfología Humana I", credits: null, term: "Sem 1", prereq: [] },
+  { name: "Matemática I", credits: null, term: "Sem 1", prereq: [] },
+  { name: "Introducción a la Farmacia y las Ciencias I", credits: null, term: "Sem 1", prereq: [] },
+  { name: "Aprendizaje Eficiente", credits: null, term: "Sem 1", prereq: [] },
+
+  { name: "Química General II", credits: null, term: "Sem 2", prereq: ["Química General I"] },
+  { name: "Bioquímica General y Molecular", credits: null, term: "Sem 2", prereq: ["Biología Celular y Molecular"] },
+  { name: "Morfología Humana II", credits: null, term: "Sem 2", prereq: ["Morfología Humana I"] },
+  { name: "Matemática II", credits: null, term: "Sem 2", prereq: ["Matemática I"] },
+  { name: "Física aplicada a las Ciencias Farmacéuticas", credits: null, term: "Sem 2", prereq: ["Matemática I"] },
+  { name: "Introducción a la Farmacia y las Ciencias II", credits: null, term: "Sem 2", prereq: ["Introducción a la Farmacia y las Ciencias I"] },
+  { name: "Inglés I", credits: null, term: "Sem 2", prereq: [] },
+
+  /* Continúa igual con todos los semestres (Sem 3 → Sem 11) */
+  { name: "Práctica Profesional", credits: null, term: "Sem 11", prereq: ["Todas las actividades curriculares hasta el X semestre"] },
 ];
 
-const STORAGE_KEY = "malla-qyf-progress-v1";
+// Estado y almacenamiento
+const STORAGE_KEY = 'malla-qyf-v1';
+const CREDITS_KEY = 'malla-qyf-credits-v1';
 const state = loadState();
-
-/* ====== UTILIDADES ====== */
-const by = k => (a,b)=> a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0;
-const groupBy = (arr, fn) => arr.reduce((acc,it)=>((acc[fn(it)] ||= []).push(it),acc),{});
-const uniq = arr => [...new Set(arr)];
-function prereqMet(course){ return (course.prereq||[]).every(code => state[code]?.estado === "aprobado"); }
-function coreqActive(course){ return (course.coreq||[]).every(code => ["cursando","aprobado"].includes(state[code]?.estado)); }
-
-/* ====== ESTADO ====== */
+const creditsOverride = loadCredits();
 function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw){ return JSON.parse(raw); }
-  }catch(e){}
-  const init = {};
-  COURSES.forEach(c => init[c.code] = { estado: "pendiente" });
-  return init;
+  try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  const init = {}; COURSES.forEach(c=>init[c.name]={estado:"pendiente"}); return init;
 }
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  render();
-}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function loadCredits(){ try{ const r = localStorage.getItem(CREDITS_KEY); return r?JSON.parse(r):{} }catch(e){ return {}; } }
+function saveCredits(){ localStorage.setItem(CREDITS_KEY, JSON.stringify(creditsOverride)); }
 
-/* ====== RENDER ====== */
-const cont = document.getElementById("contenedor");
-const buscar = document.getElementById("buscar");
-const estadoFiltro = document.getElementById("estadoFiltro");
+const $ = s=>document.querySelector(s);
+const grid = $('#grid'), searchEl = $('#search'), estadoFilterEl = $('#estadoFilter');
+
+function groupBy(a,f){return a.reduce((x,y)=>(x[f(y)]??=[]).push(y)&&x,{});}
+function prereqMet(c){return (c.prereq||[]).every(r=>state[r]?.estado==='aprobado');}
 
 function render(){
-  const q = (buscar.value||"").toLowerCase();
-  const fEstado = estadoFiltro.value;
-
-  const filtered = COURSES.filter(c=>{
-    const matchesQ = !q || [c.code,c.name,c.area,c.docente].filter(Boolean).some(v=>String(v).toLowerCase().includes(q));
-    const matchesEst = !fEstado || state[c.code]?.estado === fEstado;
-    return matchesQ && matchesEst;
+  const q=(searchEl.value||'').toLowerCase(), f=estadoFilterEl.value;
+  const filtered=COURSES.filter(c=>{
+    const qok=!q||c.name.toLowerCase().includes(q);
+    const eok=!f||state[c.name]?.estado===f;
+    return qok&&eok;
   });
-
-  // ordenar términos "Sem 1".."Sem 10"
-  const allTerms = uniq(COURSES.map(c=>c.term)).sort((a,b)=>{
-    const na = parseInt(String(a).replace(/\D+/g,'')) || 0;
-    const nb = parseInt(String(b).replace(/\D+/g,'')) || 0;
-    return na - nb;
-  });
-
-  const groups = groupBy(filtered, c=>c.term);
-  cont.innerHTML = "";
-
-  allTerms.forEach(term=>{
-    const list = (groups[term]||[]).sort(by("name"));
-    const totalCred = list.reduce((s,c)=> s+(c.credits||0),0);
-
-    const col = document.createElement("section");
-    col.className = "columna";
-    col.innerHTML = `
-      <div class="col-head">
-        <h3>${term}</h3>
-        <small>${totalCred} cr.</small>
-      </div>
-      <ul class="lista"></ul>
-    `;
-    const ul = col.querySelector(".lista");
-
+  const groups=groupBy(filtered,c=>c.term);
+  const ordered=[...new Set(COURSES.map(c=>c.term))];
+  grid.innerHTML='';
+  ordered.forEach(term=>{
+    const list=(groups[term]||[]);
+    const box=document.createElement('section');
+    box.className='semester';
+    box.innerHTML=`<div class="semester-head">${term}</div><div class="semester-body"></div>`;
+    const body=box.querySelector('.semester-body');
     list.forEach(c=>{
-      const est = state[c.code]?.estado || "pendiente";
-      const ok = prereqMet(c);
-
-      const li = document.createElement("li");
-      li.className = "item";
-      li.innerHTML = `
-        <div class="course ${est} ${(!ok && est==='pendiente') ? 'badge-prer' : ''}">
-          <div class="fila1">
-            <span class="nombre">${c.name}</span>
-            <span class="codigo">${c.code}</span>
-            <span class="tag">${c.credits||0} cr.</span>
-            <span class="tag">${c.area||"—"}</span>
-            ${ok ? "" : `<span class="tag badge-prer">Requiere prerrequisito</span>`}
-            <select class="estado-select" data-code="${c.code}">
-              <option value="pendiente" ${est==="pendiente"?"selected":""}>Pendiente</option>
-              <option value="cursando" ${est==="cursando"?"selected":""}>Cursando</option>
-              <option value="aprobado" ${est==="aprobado"?"selected":""}>Aprobado</option>
-            </select>
-          </div>
-          <div class="fila2">
-            <span class="kv"><strong>Pre:</strong> ${(c.prereq?.length? c.prereq.join(", ") : "—")}</span>
-            <span class="kv"><strong>Co:</strong> ${(c.coreq?.length? c.coreq.join(", ") : "—")}</span>
-            ${c.docente ? `<span class="kv"><strong>Docente:</strong> ${c.docente}</span>` : ""}
-          </div>
+      const est=state[c.name]?.estado||'pendiente';
+      const ok=prereqMet(c);
+      const cr=creditsOverride[c.name]??c.credits??null;
+      const el=document.createElement('article');
+      el.className='course '+(est==='aprobado'?'aprobado':est==='cursando'?'cursando':'');
+      el.innerHTML=`
+        <div class="row">
+          <div class="name">${c.name}</div>
+          <span class="badge credits" data-name="${c.name}" title="Haz clic para editar créditos">Cr ${cr??'—'}</span>
+          <span class="badge">${ok?'Prerrequisitos OK':'Requiere prerrequisito'}</span>
         </div>
-      `;
-      ul.appendChild(li);
+        <div class="row">
+          <label>Estado:
+            <select data-name="${c.name}">
+              <option value="pendiente"${est==='pendiente'?'selected':''}>Pendiente</option>
+              <option value="cursando"${est==='cursando'?'selected':''}>Cursando</option>
+              <option value="aprobado"${est==='aprobado'?'selected':''}>Aprobado</option>
+            </select>
+          </label>
+        </div>`;
+      body.appendChild(el);
     });
-    cont.appendChild(col);
+    grid.appendChild(box);
   });
 
-  actualizarResumen();
-  // listeners para selects
-  document.querySelectorAll(".estado-select").forEach(sel=>{
-    sel.addEventListener("change", e=>{
-      const code = e.target.getAttribute("data-code");
-      state[code] ||= {estado:"pendiente"};
-      state[code].estado = e.target.value;
-      saveState(); // re-render aplica color dinámico
-    });
+  // listeners
+  document.querySelectorAll("select[data-name]").forEach(s=>{
+    s.onchange=e=>{
+      const n=s.getAttribute("data-name");
+      state[n]={estado:s.value};
+      saveState(); render();
+    };
   });
+  document.querySelectorAll(".badge.credits[data-name]").forEach(b=>{
+    b.onclick=()=>{
+      const n=b.getAttribute("data-name");
+      const current=creditsOverride[n]??COURSES.find(x=>x.name===n)?.credits??'';
+      const v=prompt("Créditos para "+n+":",current);
+      if(v===null)return;
+      const num=parseInt(v,10);
+      if(!isNaN(num)&&num>=0){creditsOverride[n]=num;saveCredits();render();}
+      else alert("Número inválido");
+    };
+  });
+  updateProgress();
 }
 
-function actualizarResumen(){
-  const totalCred = COURSES.reduce((s,c)=> s + (c.credits||0), 0);
-  const doneCred  = COURSES.filter(c=> state[c.code]?.estado==="aprobado").reduce((s,c)=> s + (c.credits||0), 0);
-  const pct = totalCred ? Math.round(100*doneCred/totalCred) : 0;
-
-  document.getElementById("progressBar").style.width = pct + "%";
-  document.getElementById("progressTxt").textContent = `${pct}% · ${doneCred} / ${totalCred} créditos aprobados`;
-
-  const counts = {pendiente:0, cursando:0, aprobado:0};
-  COURSES.forEach(c=> counts[state[c.code]?.estado||"pendiente"]++);
-  document.getElementById("statusCounts").textContent =
-    `Aprobado: ${counts.aprobado} · Cursando: ${counts.cursando} · Pendiente: ${counts.pendiente}`;
+function updateProgress(){
+  const getCr=c=>(creditsOverride[c.name]??c.credits??0);
+  const total=COURSES.reduce((s,c)=>s+getCr(c),0);
+  const done=COURSES.filter(c=>state[c.name]?.estado==='aprobado').reduce((s,c)=>s+getCr(c),0);
+  const pct=total?Math.round(done/total*100):0;
+  $('#progressBar').style.width=pct+'%';
+  $('#progressPct').textContent=pct+'%';
+  $('#progressTxt').textContent=`${done}/${total} créditos aprobados`;
 }
 
-/* ====== CONTROLES ====== */
-document.getElementById("resetBtn").addEventListener("click", ()=>{
-  document.getElementById("buscar").value = "";
-  document.getElementById("estadoFiltro").value = "";
-  render();
-});
-document.getElementById("buscar").addEventListener("input", render);
-document.getElementById("estadoFiltro").addEventListener("change", render);
+searchEl.oninput=render;
+estadoFilterEl.onchange=render;
+$('#resetBtn').onclick=()=>{searchEl.value='';estadoFilterEl.value='';render();};
+$('#exportBtn').onclick=()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='progreso.json';a.click();};
+$('#importInput').onchange=e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{Object.assign(state,JSON.parse(r.result));saveState();render();}catch{alert('Archivo inválido');}};r.readAsText(f);};
 
-document.getElementById("exportBtn").addEventListener("click", ()=>{
-  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "progreso-malla.json";
-  a.click();
-  URL.revokeObjectURL(a.href);
-});
-document.getElementById("importInput").addEventListener("change", (e)=>{
-  const file = e.target.files?.[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    try{
-      const data = JSON.parse(reader.result);
-      Object.assign(state, data);
-      saveState();
-    }catch(err){ alert("Archivo inválido"); }
-  };
-  reader.readAsText(file);
-});
-
-/* ====== INICIO ====== */
 render();
