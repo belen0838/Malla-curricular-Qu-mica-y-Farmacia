@@ -1,69 +1,61 @@
-:root {
-  /* Paleta base */
-  --color-fondo: #C8D9E6;
-  --color-casilla: #cdc9e8;
-  --color-aprobado: #b882af;
-  --color-cursando: #d4ccec; /* tono más claro para cursando */
-  --color-titulo: #sa496e; /* revisa este, puede ser un error tipográfico, probablemente quisiste decir #5A496E */
-  --color-letra-ramos: #3B165C;
-  --color-letra-semestre: #395176;
-}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Malla Curricular Interactiva – QyF</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="titulo">Malla Curricular Interactiva</h1>
+    <div class="acciones">
+      <input id="buscar" type="search" placeholder="Buscar ramo, código o docente…" />
+      <select id="estadoFiltro">
+        <option value="">Todos</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="cursando">Cursando</option>
+        <option value="aprobado">Aprobado</option>
+      </select>
+      <button id="resetBtn">Reiniciar filtros</button>
+      <button id="exportBtn">Exportar progreso</button>
+      <label class="btn-file">Importar
+        <input id="importInput" type="file" accept="application/json" />
+      </label>
+    </div>
+  </header>
 
-/* Fondo general */
-body {
-  background-color: var(--color-fondo);
-  font-family: 'Poppins', 'Segoe UI', sans-serif;
-  color: var(--color-letra-ramos);
-}
+  <section class="resumen">
+    <div class="card">
+      <h2>Progreso total</h2>
+      <div class="barra">
+        <div id="progressBar"></div>
+      </div>
+      <p id="progressTxt">0% · 0 / 0 créditos aprobados</p>
+    </div>
+    <div class="card">
+      <h2>Estado</h2>
+      <p id="statusCounts">Aprobado: 0 · Cursando: 0 · Pendiente: 0</p>
+    </div>
+    <div class="card">
+      <h2>Leyenda</h2>
+      <div class="leyenda">
+        <span class="chip chip-aprobado">Aprobado</span>
+        <span class="chip chip-cursando">Cursando</span>
+        <span class="chip chip-pendiente">Pendiente</span>
+        <span class="chip chip-prer">Requiere prerrequisito</span>
+      </div>
+    </div>
+  </section>
 
-/* Título principal */
-header h1 {
-  color: var(--color-titulo);
-  font-weight: 700;
-  font-size: 2rem;
-}
+  <main id="contenedor" class="contenedor">
+    <!-- Las columnas por semestre se inyectan desde script.js -->
+  </main>
 
-/* Casilla de semestre */
-section > div > h3 {
-  color: var(--color-letra-semestre);
-  font-weight: 600;
-}
+  <footer class="pie">
+    <p>Hecho para QyF. Tu progreso se guarda localmente en este navegador.</p>
+  </footer>
 
-/* Casillas de ramos */
-.course-card {
-  background-color: var(--color-casilla);
-  border-radius: 12px;
-  color: var(--color-letra-ramos);
-  transition: all 0.3s ease;
-}
-
-/* Cuando el ramo se marca como cursando */
-.course-card.cursando {
-  background-color: var(--color-cursando);
-  color: var(--color-letra-ramos);
-  border: 1px solid #b9aee1;
-}
-
-/* Cuando el ramo se marca como aprobado */
-.course-card.aprobado {
-  background-color: var(--color-aprobado);
-  color: white;
-  font-weight: 600;
-}
-
-/* Efecto hover */
-.course-card:hover {
-  transform: scale(1.02);
-}
-
-/* Barra de progreso */
-#progressBar {
-  background-color: var(--color-aprobado);
-}
-
-/* Casilla de semestre (fondo título de bloque) */
-.semester-header {
-  background-color: #bfcbe0;
-  color: var(--color-letra-semestre);
-  font-weight: 600;
-}
+  <script src="script.js"></script>
+</body>
+</html>
